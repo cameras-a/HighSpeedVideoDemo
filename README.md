@@ -18,3 +18,7 @@
 1.预览尺寸和录制尺寸要一致
 
 2.`CamcorderProfile`的`public static boolean hasProfile(int cameraId, int quality)`方法,只有他返回`true`才意味着当前预览的帧率支持被录制视频.
+
+
+# 查视频文件的帧率
+ffmpeg -i 视频文件名
