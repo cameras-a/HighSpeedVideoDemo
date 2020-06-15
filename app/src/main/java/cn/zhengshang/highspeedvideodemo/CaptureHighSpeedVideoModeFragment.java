@@ -52,6 +52,7 @@ import androidx.fragment.app.Fragment;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -371,6 +372,7 @@ public class CaptureHighSpeedVideoModeFragment extends Fragment
             if (!mCameraOpenCloseLock.tryAcquire(2500, TimeUnit.MILLISECONDS)) {
                 throw new RuntimeException("Time out waiting to lock camera opening.");
             }
+            printInfo(manager);
             String cameraId = Objects.requireNonNull(manager).getCameraIdList()[0];
 
             CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
@@ -394,6 +396,14 @@ public class CaptureHighSpeedVideoModeFragment extends Fragment
                             videoSize.setFps(fpsRange.getUpper());
                             Log.d(TAG, "Support HighSpeed video recording for " + videoSize.toString());
                             highSpeedSizes.add(videoSize);
+//                        } else if (videoSize.hasHighSpeedCamcorder(CameraMetadata.LENS_FACING_BACK)) {
+//                            videoSize.setFps(fpsRange.getUpper());
+//                            Log.d(TAG, "back Support HighSpeed video recording for " + videoSize.toString());
+//                            highSpeedSizes.add(videoSize);
+//                        } else if (videoSize.hasHighSpeedCamcorder(CameraMetadata.LENS_FACING_EXTERNAL)) {
+//                            videoSize.setFps(fpsRange.getUpper());
+//                            Log.d(TAG, "EXTERNAL Support HighSpeed video recording for " + videoSize.toString());
+//                            highSpeedSizes.add(videoSize);
                         }
                     }
                 }
@@ -442,6 +452,56 @@ public class CaptureHighSpeedVideoModeFragment extends Fragment
         } catch (InterruptedException e) {
             throw new RuntimeException("Interrupted while trying to lock camera opening.");
         }
+    }
+
+    private void printInfo(CameraManager manager) throws CameraAccessException {
+
+        d("cameraCount: " + manager.getCameraIdList().length);
+        for (String cameraId : manager.getCameraIdList()) {
+            d("cameraId: " + cameraId);
+            // 特征
+            CameraCharacteristics characteristics
+                    = manager.getCameraCharacteristics(cameraId);
+
+            List cs = characteristics.getAvailableCaptureRequestKeys();
+            d("getAvailableCaptureRequestKeys: " + cs.size());
+            for (Object item : cs) {
+                d(item.toString());
+            }
+
+            // 该相机的FPS范围
+            Range<Integer>[] fpsRanges = characteristics.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES);
+            Log.d("dddd-FPS", "SYNC_MAX_LATENCY_PER_FRAME_CONTROL: " + Arrays.toString(fpsRanges));
+
+            StreamConfigurationMap map = characteristics
+                    .get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+
+            if (map == null) {
+                Log.d("dddd-FPS-high","empty");
+            }
+
+            for (Range<Integer> fpsRange : map.getHighSpeedVideoFpsRanges()) {
+                Log.d("dddd-FPS-high", "openCamera: [width, height] = "+ fpsRange.toString());
+            }
+
+
+            cs = characteristics.getAvailableCaptureResultKeys();
+            d("getAvailableCaptureResultKeys: " + cs.size());
+            for (Object item : cs) {
+                d(item.toString());
+            }
+
+
+            cs = characteristics.getKeys();
+            d("getKeys: " + cs.size());
+            for (Object item : cs) {
+                d(item.toString());
+            }
+        }
+    }
+
+    private void d(String msg) {
+        android.util.Log.d("dddd", msg);
     }
 
     private void closeCamera() {
@@ -605,8 +665,10 @@ public class CaptureHighSpeedVideoModeFragment extends Fragment
         if (!camera2VideoImage.exists()) {
             camera2VideoImage.mkdirs();
         }
-        return camera2VideoImage.getAbsolutePath() + "/HIGH_SPEED_VIDEO_" + System.currentTimeMillis()
+        String path = camera2VideoImage.getAbsolutePath() + "/HIGH_SPEED_VIDEO_" + System.currentTimeMillis()
                 + ".mp4";
+        Log.d(TAG, "videoPath: " + path);
+        return path;
     }
 
     /**
