@@ -1,30 +1,21 @@
-package cn.zhengshang.highspeedvideodemo;
+package cn.zhengshang.highspeedvideodemo.view;
 
-/**
- * Created by troels on 1/27/16.
- */
 import android.content.Context;
+import android.graphics.Matrix;
+import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
-import android.view.TextureView;
 
-/**
- * A {@link TextureView} that can be adjusted to a specified aspect ratio.
- */
-public class AutoFitTextureView extends TextureView {
+public class AutoFitGLSurfaceView extends GLSurfaceView implements IAotoSizeView {
 
     private int mRatioWidth = 0;
     private int mRatioHeight = 0;
 
-    public AutoFitTextureView(Context context) {
-        this(context, null);
+    public AutoFitGLSurfaceView(Context context) {
+        super(context);
     }
 
-    public AutoFitTextureView(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
-    }
-
-    public AutoFitTextureView(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
+    public AutoFitGLSurfaceView(Context context, AttributeSet attrs) {
+        super(context, attrs);
     }
 
     /**
@@ -45,6 +36,11 @@ public class AutoFitTextureView extends TextureView {
     }
 
     @Override
+    public void setTransform(Matrix matrix) {
+
+    }
+
+    @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         int width = MeasureSpec.getSize(widthMeasureSpec);
@@ -59,5 +55,4 @@ public class AutoFitTextureView extends TextureView {
             }
         }
     }
-
 }

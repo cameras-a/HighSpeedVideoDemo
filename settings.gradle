@@ -1,1 +1,3 @@
 include ':app'
+include ':eglcore'
+project(':eglcore').projectDir = new File('/Volumes/Samsung_T5/dev/github/openGLes/GLStudio-master/wu','eglcore')
